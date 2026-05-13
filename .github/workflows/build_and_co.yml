@@ -1,0 +1,109 @@
+name: Build, Sign and Release Android App
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  prepare_android_app:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.versioncheck.outputs.version }}
+      create_tag: ${{ steps.versioncheck.outputs.create_tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect version & create tag
+        id: versioncheck
+        run: |
+          VERSION=$(grep 'versionName' app/build.gradle.kts | sed -E 's/.*versionName[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          git fetch --tags
+
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "create_tag=false" >> "$GITHUB_OUTPUT"
+          else
+            git tag "v$VERSION"
+            git push origin "v$VERSION"
+            echo "create_tag=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build_sign_and_release_android_app:
+    needs: prepare_android_app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build Android App
+        run: ./gradlew :app:assembleRelease
+
+      - name: Find APKSIGNER
+        id: find_apksigner
+        run: |
+          APKSIGNER=$(find /usr/local/lib/android/sdk/build-tools -name apksigner | head -n 1)
+          echo "apksigner=$APKSIGNER" >> $GITHUB_OUTPUT
+
+      - name: Sign Android
+        id: sign_apk
+        run: |
+          UNSIGNED_APK="app/build/outputs/apk/release/app-release-unsigned.apk"
+          SIGNED_APK="GeoWeather-v${{ needs.prepare_android_app.outputs.version }}.apk"
+
+          echo "==> Signiere APK: $SIGNED_APK"
+          "${{ steps.find_apksigner.outputs.apksigner }}" sign \
+            --ks ./GeoWeather-KeyStore.jks \
+            --ks-key-alias alle \
+            --ks-pass pass:KKKKKK \
+            --key-pass pass:KKKKKK \
+            --out "$SIGNED_APK" \
+            "$UNSIGNED_APK"
+
+          echo "signed_apk=$SIGNED_APK" >> $GITHUB_OUTPUT
+
+      - name: Verify APK Signature
+        run: |
+          echo "==> Überprüfe Signatur"
+          "${{ steps.find_apksigner.outputs.apksigner }}" verify --verbose \
+            "${{ steps.sign_apk.outputs.signed_apk }}"
+
+      - name: Upload APK as build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: GeoWeather-v${{ needs.prepare_android_app.outputs.version }}.apk
+          path: GeoWeather-v${{ needs.prepare_android_app.outputs.version }}.apk
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload APK to Release
+        if: needs.prepare_android_app.outputs.create_tag == 'true'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ needs.prepare_android_app.outputs.version }}
+          files: |
+            GeoWeather-v${{ needs.prepare_android_app.outputs.version }}.apk
+          draft: true
+          generate_release_notes: true

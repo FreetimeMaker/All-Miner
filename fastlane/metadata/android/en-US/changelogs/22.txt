@@ -1,0 +1,2 @@
+- Added even More in the WeatherDetailActivity
+- Added even Notifications
