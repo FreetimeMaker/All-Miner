@@ -1,11 +1,10 @@
 package com.freetime.allminer
 
 import android.app.Application
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.os.BatteryManager
 import android.os.Bundle
+import android.os.IBinder
 import android.os.PowerManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,7 +31,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import com.freetime.allminer.ui.theme.AllMinerTheme
 
-// DataStore for persistent settings
 private val Context.dataStore by preferencesDataStore(name = "settings")
 
 class MainActivity : ComponentActivity() {
@@ -52,23 +50,55 @@ class MainActivity : ComponentActivity() {
 }
 
 class MinerViewModel(application: Application) : AndroidViewModel(application) {
+    private var miningService: MiningService? = null
+    private var isBound = false
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            val binder = service as MiningService.LocalBinder
+            miningService = binder.getService()
+            isBound = true
+            // Sync status from service if it's already running
+            miningService?.let {
+                isMining = it.isMining
+                totalHashes = it.totalHashes
+            }
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            isBound = false
+            miningService = null
+        }
+    }
+
     init {
         System.loadLibrary("allminer")
         loadSettings()
+        val intent = Intent(application, MiningService::class.java)
+        application.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        
+        // Update loop to sync from service
+        viewModelScope.launch {
+            while (true) {
+                miningService?.let {
+                    isMining = it.isMining
+                    hashrate = it.hashrate
+                    totalHashes = it.totalHashes
+                }
+                delay(1000)
+            }
+        }
     }
 
     private external fun initRandomX(key: String, args: String): Boolean
     private external fun prepareThreads(count: Int)
-    private external fun performRandomXHash(threadId: Int, input: ByteArray): Long
     private external fun getEngineVersion(): String
 
-    // Keys for DataStore
     private val WALLET_KEY = stringPreferencesKey("wallet_address")
     private val POOL_KEY = stringPreferencesKey("pool_url")
     private val ARGS_KEY = stringPreferencesKey("start_args")
     private val COIN_KEY = stringPreferencesKey("selected_coin")
 
-    // UI States
     var isMining by mutableStateOf(false)
     var isInitializing by mutableStateOf(false)
     var hashrate by mutableDoubleStateOf(0.0)
@@ -85,10 +115,8 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
     var isDeviceHot by mutableStateOf(false)
     var stopReason by mutableStateOf("")
 
-    private var miningJobs = mutableListOf<Job>()
     private var monitoringJob: Job? = null
 
-    // Expanded Crypto List
     val coins = listOf(
         "DOGE", "SHIB", "PEPE", "SOL", "ADA", "XRP", "LTC", "BONK", "FLOKI",
         "MATIC", "DOT", "TRX", "LINK", "AVAX", "ETC", "RVN", "XMR", "KAS", "ALGO",
@@ -108,9 +136,7 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
                 poolUrl = preferences[POOL_KEY] ?: "rx.unmineable.com:3333"
                 startArgs = preferences[ARGS_KEY] ?: "--cpu-max-threads-hint 50"
                 selectedCoin = preferences[COIN_KEY] ?: "DOGE"
-            } catch (e: Exception) {
-                // Handle possible errors
-            }
+            } catch (e: Exception) {}
         }
     }
 
@@ -176,39 +202,18 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        val unmineableAddress = "$selectedCoin:$walletAddress.AllMinerApp"
-        
         isInitializing = true
         viewModelScope.launch(Dispatchers.Default) {
             val success = initRandomX("unmineable_rx_seed", startArgs)
             if (success) {
                 prepareThreads(numThreads)
-                isInitializing = false
-                isMining = true
-                
-                repeat(numThreads) { threadId ->
-                    miningJobs.add(launch {
-                        while (isActive) {
-                            val startTime = System.currentTimeMillis()
-                            var batchHashes = 0L
-                            for (i in 1..10) {
-                                batchHashes += performRandomXHash(threadId, unmineableAddress.toByteArray())
-                            }
-                            val endTime = System.currentTimeMillis()
-                            val timeTakenSec = (endTime - startTime) / 1000.0
-                            if (timeTakenSec > 0) {
-                                val currentThreadHashrate = batchHashes / timeTakenSec
-                                withContext(Dispatchers.Main) {
-                                    hashrate = (hashrate * 0.9 + currentThreadHashrate * 0.1)
-                                }
-                            }
-                            totalHashes += batchHashes
-                            delay(10)
-                        }
-                    })
+                withContext(Dispatchers.Main) {
+                    isInitializing = false
+                    isMining = true
+                    miningService?.startMining(selectedCoin, walletAddress, numThreads, startArgs)
                 }
             } else {
-                isInitializing = false
+                withContext(Dispatchers.Main) { isInitializing = false }
             }
         }
     }
@@ -217,8 +222,14 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
         isMining = false
         isInitializing = false
         hashrate = 0.0
-        miningJobs.forEach { it.cancel() }
-        miningJobs.clear()
+        miningService?.stopMining()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        if (isBound) {
+            getApplication<Application>().unbindService(connection)
+        }
     }
 }
 
@@ -248,7 +259,6 @@ fun MinerScreen(
 
         var expanded by remember { mutableStateOf(false) }
 
-        // Selection Area
         Box(modifier = Modifier.fillMaxWidth()) {
             OutlinedButton(
                 onClick = { expanded = true },
@@ -313,7 +323,6 @@ fun MinerScreen(
             )
         }
 
-        // Stats Card - "See everything"
         Card(
             modifier = Modifier.fillMaxWidth(),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -413,14 +422,6 @@ fun MinerScreen(
                 style = MaterialTheme.typography.headlineSmall
             )
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "FOSS Version - GPLv3 License",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.outline
-        )
     }
 }
 

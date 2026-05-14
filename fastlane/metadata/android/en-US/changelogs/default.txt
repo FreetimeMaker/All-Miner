@@ -1,4 +1,4 @@
-Initial release of AllMiner!
+Initial release of All Miner!
 - Native RandomX engine integration.
 - unMineable pool support.
 - Multi-thread support with adjustable intensity.
@@ -9,3 +9,4 @@ Initial release of AllMiner!
 - Expanded cryptocurrency support: added many more coins for unMineable pools.
 - UI/UX improvements: added scrolling support for smaller screens and redesigned the mining interface.
 - Stability fixes and optimized multi-threading logic.
+- Added Foreground Service for mining
