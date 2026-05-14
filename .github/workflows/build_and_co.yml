@@ -59,7 +59,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Accept Android SDK Licenses
-        run: yes | sdkmanager --licenses || true
+        run: |
+          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Build Android App
         run: ./gradlew :app:assembleRelease
