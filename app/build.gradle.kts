@@ -11,8 +11,8 @@ android {
         applicationId = "com.freetime.allminer"
         minSdk = 24
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 4
+        versionName = "1.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -42,7 +42,7 @@ android {
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
-            version = "4.1.2"
+            version = "3.22.1"
         }
     }
     ndkVersion = "30.0.14904198 rc1"

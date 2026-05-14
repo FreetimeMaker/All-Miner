@@ -9,7 +9,6 @@
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" alt="1. Picture"  width="25%">
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" alt="2. Picture"  width="25%">
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" alt="3. Picture"  width="25%">
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" alt="4. Picture"  width="25%">
 </div>
 
 <div align="center">

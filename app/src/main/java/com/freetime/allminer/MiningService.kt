@@ -11,6 +11,10 @@ import kotlinx.coroutines.*
 
 class MiningService : Service() {
 
+    init {
+        System.loadLibrary("allminer")
+    }
+
     private val binder = LocalBinder()
     private val serviceScope = CoroutineScope(Dispatchers.Default + Job())
     private var miningJobs = mutableListOf<Job>()

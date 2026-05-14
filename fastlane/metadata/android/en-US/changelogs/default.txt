@@ -10,3 +10,4 @@ Initial release of All Miner!
 - UI/UX improvements: added scrolling support for smaller screens and redesigned the mining interface.
 - Stability fixes and optimized multi-threading logic.
 - Added Foreground Service for mining
+- Fixed a Few Errors

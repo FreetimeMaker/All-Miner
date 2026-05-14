@@ -30,7 +30,7 @@ Java_com_freetime_allminer_MinerViewModel_prepareThreads(
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_freetime_allminer_MinerViewModel_performRandomXHash(
+Java_com_freetime_allminer_MiningService_performNativeHash(
         JNIEnv* env,
         jobject /* this */,
         jint threadId,
