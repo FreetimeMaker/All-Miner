@@ -3,9 +3,9 @@
 
 #include <jni.h>
 #include <string>
+#include <vector>
 
-// Diese Header würden normalerweise von der RandomX-Library kommen
-// Wir definieren hier die Schnittstellen, die wir in miner-lib.cpp nutzen
+struct randomx_vm;
 
 class RandomXEngine {
 public:
@@ -14,14 +14,17 @@ public:
         return instance;
     }
 
-    bool init(const std::string& key);
-    void hash(const uint8_t* input, size_t inputSize, uint8_t* output);
+    bool init(const std::string& key, const std::string& args);
+    void hash(int threadId, const uint8_t* input, size_t inputSize, uint8_t* output);
     bool isReady() const { return initialized; }
+    void prepareThreads(int count);
 
 private:
     RandomXEngine() : initialized(false) {}
     bool initialized;
     std::string currentKey;
+    std::string currentArgs;
+    std::vector<randomx_vm*> vms;
 };
 
 #endif

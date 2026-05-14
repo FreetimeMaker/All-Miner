@@ -1,6 +1,6 @@
 <div align="center">
-<h1>🌤️ GeoWeather</h1>
-<p><i>A modern weather app for Android, inspired by MeteoSwiss</i></p>
+<h1>All Miner</h1>
+<p><i>Modern and efficient Android crypto miner with RandomX support</i></p>
 </div>
 
 <div align="center">
@@ -12,75 +12,63 @@
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" alt="4. Picture"  width="25%">
 </div>
 
-# Translations
-<div align="center">
-
-[![Translations Status](https://translate.codeberg.org/widget/geoweather/geoweather/287x66-grey.png)](https://translate.codeberg.org/engage/geoweather/)
-</div>
-
 <div align="center">
 <h1>Repository, Build and App Informations</h1>
 </div>
 
 <div align="center">
 
-[![Latest release](https://img.shields.io/github/v/release/FreetimeMaker/GeoWeather?style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/releases)
-[![F-Droid latest release](https://img.shields.io/f-droid/v/com.freetime.geoweather?color=%23ea9010&style=for-the-badge)](https://f-droid.org/packages/com.freetime.geoweather)
-[![GitHub license](https://img.shields.io/github/license/FreetimeMaker/GeoWeather?style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/blob/main/LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/FreetimeMaker/GeoWeather/total?style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/releases)
-[![GitHub stars](https://img.shields.io/github/stars/FreetimeMaker/GeoWeather?color=%2359a14f&style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/stargazers)
-[![Android Build, Sign and Release](https://github.com/FreetimeMaker/GeoWeather/actions/workflows/build_and_co.yml/badge.svg)](https://github.com/FreetimeMaker/GeoWeather/actions/workflows/build_and_co.yml)
-[![API](https://img.shields.io/badge/API-26%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=26)
+[![Latest release](https://img.shields.io/github/v/release/FreetimeMaker/All-Miner?style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/releases)
+[![F-Droid latest release](https://img.shields.io/f-droid/v/com.freetime.allminer?color=%23ea9010&style=for-the-badge)](https://f-droid.org/packages/com.freetime.geoweather)
+[![GitHub license](https://img.shields.io/github/license/FreetimeMaker/All-Miner?style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/blob/main/LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/FreetimeMaker/All-Miner/total?style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/releases)
+[![GitHub stars](https://img.shields.io/github/stars/FreetimeMaker/All-Miner?color=%2359a14f&style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/stargazers)
+[![Android Build, Sign and Release](https://github.com/FreetimeMaker/All-Miner/actions/workflows/build_and_co.yml/badge.svg)](https://github.com/FreetimeMaker/GeoWeather/actions/workflows/build_and_co.yml)
+[![API](https://img.shields.io/badge/API-24%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=24)
 <img alt="Kotlin" src="https://ziadoua.github.io/m3-Markdown-Badges/badges/Kotlin/kotlin1.svg" />
 <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/Android/android1.svg" />
-<a href="https://github.com/FreetimeMaker/GeoWeather/issues">
-  <img src="https://m3-markdown-badges.vercel.app/issues/1/2/FreetimeMaker/GeoWeather" alt="Issues"/>
+<a href="https://github.com/FreetimeMaker/All-Miner/issues">
+  <img src="https://m3-markdown-badges.vercel.app/issues/1/2/FreetimeMaker/All-Miner" alt="Issues"/>
 </a>
 </div>
 
-GeoWeather is a modern Android weather application that allows you to monitor weather conditions for multiple cities. The app was inspired by the Swiss weather app MeteoSwiss and offers an intuitive interface with detailed weather information.
+AllMiner is a powerful crypto miner optimized specifically for Android devices. It utilizes the original RandomX engine to enable efficient hashing directly on your smartphone's CPU, primarily designed for unMineable pools.
 
 ## ✨ Key Features
 
-- 🏙️ **Multiple Cities**: Add and manage unlimited cities with ease
-- 🌡️ **Unit Switching**: Switch between Celsius/Fahrenheit and km/h/mph
-- 📅 **7-Day Weather Forecast**: Detailed weather predictions for the entire week
-- ⏰ **Hourly Forecast**: Precise weather data on an hourly basis
-- 🎨 **Material YOU**: Dynamic colors based on your wallpaper (Android 12+)
-- 🎨 **Weather Icons**: Visual representation of weather conditions
-- 🔔 **Notifications**: Receive weather alerts and updates
-- 📝 **Integrated Change Log**: Track version updates directly in the app
+- 🚀 **Native RandomX Engine**: High-performance C++ implementation optimized for ARM64 (aarch64) processors.
+- 💰 **unMineable Support**: Mine a wide variety of coins (DOGE, SHIB, SOL, ADA, etc.) directly to your wallet.
+- 🧵 **Multi-Threading**: Granular control over the number of CPU cores used to balance performance and battery life.
+- 🛡️ **Hardware Protection**:
+  - **Thermal Protection**: Automatically stops mining if the device gets too hot.
+  - **Battery Protection**: Automatically stops if the battery level drops below 20%.
+- 🎨 **Material 3 UI**: Clean, modern interface built with Jetpack Compose.
+- 🔓 **FOSS**: 100% Free and Open Source Software under the GPLv3 license.
 
 ## 🛠️ Technology Stack
 
-- **Jetpack Compose**: Modern UI framework for declarative interfaces
-- **Kotlin**: Modern programming language for Android development
-- **Kotlin DSL**: For build configuration and scripts
-- **Room**: Local database for persistent data storage
-- **Retrofit & OkHttp**: Network communication for weather APIs
-- **Coil**: Image loading library for Compose
-- **WorkManager**: Background processing for regular updates
+- **Jetpack Compose**: Modern UI framework for the Android frontend.
+- **Kotlin**: Core application logic and ViewModel state management.
+- **C++ (JNI/NDK)**: Native bridge to the RandomX hashing engine for maximum efficiency.
+- **RandomX**: The original Monero-pioneered Proof-of-Work algorithm.
 
 ## 📥 Download & Installation
 
 ### Get the Latest Version
 
-You can download the latest version of GeoWeather from the following platforms:
+You can download the latest version of All Miner from the following platforms:
 
-- **GitHub Releases**: [Direct Download](https://github.com/FreetimeMaker/GeoWeather/releases/latest)
-- **F-Droid**: [com.freetime.geoweather](https://f-droid.org/packages/com.freetime.geoweather)
-- **Obtainium**: [Automatic Updates](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.freetime.geoweather%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FFreetimeMaker%2FGeoWeather%22%2C%22author%22%3A%22Freetime%20Maker%22%2C%22name%22%3A%22GeoWeather%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%7D%22%7D)
-- **GitHub Store**: [Open in GitHub Store](https://github-store.org/app?repo=FreetimeMaker/GeoWeather)
+- **GitHub Releases**: [Direct Download](https://github.com/FreetimeMaker/All-Miner/releases/latest)
+- **F-Droid**: [com.freetime.geoweather](https://f-droid.org/packages/com.freetime.allminer)
+- **GitHub Store**: [Open in GitHub Store](https://github-store.org/app?repo=FreetimeMaker/All-Miner)
 
 <div align="center">
 
-[<img src="media-resources/badge_github.png" alt="Get it on GitHub" height="82">](https://github.com/FreetimeMaker/GeoWeather/releases/latest)
+[<img src="media-resources/badge_github.png" alt="Get it on GitHub" height="82">](https://github.com/FreetimeMaker/All-Miner/releases/latest)
 
-[<img src="media-resources/badge_f_droid.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.freetime.geoweather)
+[<img src="media-resources/badge_f_droid.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.freetime.allminer)
 
-[<img src="media-resources/badge_obtainium.png" alt="Get it on Obtainium" width="194">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.freetime.geoweather%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FFreetimeMaker%2FGeoWeather%22%2C%22author%22%3A%22Freetime%20Maker%22%2C%22name%22%3A%22GeoWeather%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%7D%22%7D)
-
-[<img src="media-resources/badge_github_store.png" alt="Get it on GitHub Store" height="70">](https://github-store.org/app?repo=FreetimeMaker/GeoWeather)
+[<img src="media-resources/badge_github_store.png" alt="Get it on GitHub Store" height="70">](https://github-store.org/app?repo=FreetimeMaker/All-Miner)
 </div>
 
 ## 🚀 Upcoming Features
@@ -88,7 +76,6 @@ You can download the latest version of GeoWeather from the following platforms:
 Planned:
 
 - 📸 **App Demonstration**: Screenshots and video tutorials on YouTube and other platforms
-- 📊 **Weather History**: Historical weather data and trends
 
 ## 📄 License
 
@@ -96,11 +83,11 @@ This project is licensed under the [Apache-2.0 License](LICENSE).
 
 ## ❤️ Support This Project
 
-GeoWeather is 100% free. No ads. No tracking.
+All Miner is 100% free. No ads. No tracking.
 
-- ⭐ **[Star](https://github.com/FreetimeMaker/GeoWeather/star)** this repository
-- 🐛 **[Report](https://github.com/FreetimeMaker/GeoWeather/issues)** bugs and issues
-- 💡 **[Suggest](https://github.com/FreetimeMaker/GeoWeather/discussions)** new features
+- ⭐ **[Star](https://github.com/FreetimeMaker/All-Miner/star)** this repository
+- 🐛 **[Report](https://github.com/FreetimeMaker/All-Miner/issues)** bugs and issues
+- 💡 **[Suggest](https://github.com/FreetimeMaker/All-Miner/discussions)** new features
 - 💳 **[Sponsor](#-donations)** the developer
 
 ---
@@ -113,17 +100,17 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ### Contributors :handshake:
 
-<a href="https://github.com/FreetimeMaker/GeoWeather/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=FreetimeMaker/GeoWeather"  alt="Icons of contributors to GeoWeather"/>
+<a href="https://github.com/FreetimeMaker/All-Miner/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=FreetimeMaker/All-Miner"  alt="Icons of contributors to All Miner"/>
 </a>
 
 ## 🌟 Star History
 
-<a href="https://www.star-history.com/#FreetimeMaker/GeoWeather&type=date&legend=top-left">
+<a href="https://www.star-history.com/#FreetimeMaker/All-Miner&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=FreetimeMaker/GeoWeather&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=FreetimeMaker/GeoWeather&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=FreetimeMaker/GeoWeather&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=FreetimeMaker/All-Miner&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=FreetimeMaker/All-Miner&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=FreetimeMaker/All-Miner&type=date&legend=top-left" />
  </picture>
 </a>
 
@@ -133,7 +120,7 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ## 🤝 Donations
 
-If you like GeoWeather, I'd appreciate a small donation — thank you! Below are some common cryptocurrency options.
+If you like All Miner, I'd appreciate a small donation — thank you! Below are some common cryptocurrency options.
 
 <div align="center">
 

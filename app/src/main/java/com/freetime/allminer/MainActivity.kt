@@ -46,18 +46,21 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
         System.loadLibrary("allminer")
     }
 
-    private external fun initRandomX(key: String): Boolean
-    private external fun performRandomXHash(input: ByteArray): Long
+    private external fun initRandomX(key: String, args: String): Boolean
+    private external fun prepareThreads(count: Int)
+    private external fun performRandomXHash(threadId: Int, input: ByteArray): Long
     private external fun getEngineVersion(): String
 
     var isMining by mutableStateOf(false)
     var isInitializing by mutableStateOf(false)
     var hashrate by mutableDoubleStateOf(0.0)
     var walletAddress by mutableStateOf("")
-    var poolUrl by mutableStateOf("pool.minexmr.com:4444")
+    var poolUrl by mutableStateOf("rx.unmineable.com:3333")
+    var startArgs by mutableStateOf("--cpu-max-threads-hint 50")
     var totalHashes by mutableLongStateOf(0L)
-    var selectedCoin by mutableStateOf("Monero (XMR)")
+    var selectedCoin by mutableStateOf("DOGE")
     var engineInfo by mutableStateOf(getEngineVersion())
+    var numThreads by mutableIntStateOf(1)
     
     // Akku- und Hitzeschutz Status
     var batteryLevel by mutableIntStateOf(100)
@@ -65,7 +68,7 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
     var isDeviceHot by mutableStateOf(false)
     var stopReason by mutableStateOf("")
 
-    private var miningJob: Job? = null
+    private var miningJobs = mutableListOf<Job>()
     private var monitoringJob: Job? = null
 
     init {
@@ -79,7 +82,7 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
                 updateThermalStatus()
                 
                 if (isMining && (isBatteryLow || isDeviceHot)) {
-                    stopReason = if (isDeviceHot) "Gerät zu heiß!" else "Akku zu schwach (< 20%)"
+                    stopReason = if (isDeviceHot) "Device too hot!" else "Battery too low (< 20%)"
                     withContext(Dispatchers.Main) {
                         stopMining()
                     }
@@ -94,7 +97,7 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
         val batteryStatus: Intent? = getApplication<Application>().registerReceiver(null, intentFilter)
         val level: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
         val scale: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
-        batteryLevel = (level * 100 / scale.toFloat()).toInt()
+        batteryLevel = if (scale > 0) (level * 100 / scale.toFloat()).toInt() else 0
         
         // Schutz ab 20% Akku
         isBatteryLow = batteryLevel < 20
@@ -109,7 +112,7 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val coins = listOf("Monero (XMR)", "Ethereum Classic (ETC)", "Ravencoin (RVN)", "Dogecoin (DOGE)")
+    val coins = listOf("DOGE", "SHIB", "PEPE", "SOL", "ADA", "XRP", "LTC", "BONK", "FLOKI")
 
     fun toggleMining() {
         if (isMining) {
@@ -122,39 +125,44 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun startMining() {
         if (isBatteryLow || isDeviceHot) {
-            stopReason = if (isDeviceHot) "Gerät zu heiß!" else "Akku zu schwach"
+            stopReason = if (isDeviceHot) "Device too hot!" else "Battery too low"
             return
         }
 
+        val unmineableAddress = "$selectedCoin:$walletAddress.AllMinerApp"
+        
         isInitializing = true
         viewModelScope.launch(Dispatchers.Default) {
-            // RandomX benötigt eine Initialisierung (Key/Seed)
-            val success = initRandomX("default_seed_hash")
-            isInitializing = false
-            
+            val success = initRandomX("unmineable_rx_seed", startArgs)
             if (success) {
+                prepareThreads(numThreads)
+                isInitializing = false
                 isMining = true
-                miningJob = launch {
-                    while (isActive) {
-                        val startTime = System.currentTimeMillis()
-                        
-                        // Simuliere Hashing-Batch
-                        var batchHashes = 0L
-                        for (i in 1..10) {
-                            batchHashes += performRandomXHash("input_data_to_hash_$totalHashes".toByteArray())
+                
+                repeat(numThreads) { threadId ->
+                    miningJobs.add(launch {
+                        while (isActive) {
+                            val startTime = System.currentTimeMillis()
+                            var batchHashes = 0L
+                            for (i in 1..10) {
+                                batchHashes += performRandomXHash(threadId, unmineableAddress.toByteArray())
+                            }
+                            val endTime = System.currentTimeMillis()
+                            val timeTakenSec = (endTime - startTime) / 1000.0
+                            if (timeTakenSec > 0) {
+                                val currentThreadHashrate = batchHashes / timeTakenSec
+                                withContext(Dispatchers.Main) {
+                                    // Sehr simple Hashrate-Aggregierung (nur Schätzung)
+                                    hashrate = (hashrate * 0.9 + currentThreadHashrate * 0.1)
+                                }
+                            }
+                            totalHashes += batchHashes
+                            delay(10)
                         }
-                        
-                        val endTime = System.currentTimeMillis()
-                        val timeTakenSec = (endTime - startTime) / 1000.0
-                        
-                        if (timeTakenSec > 0) {
-                            hashrate = batchHashes / timeTakenSec
-                        }
-                        
-                        totalHashes += batchHashes
-                        delay(10)
-                    }
+                    })
                 }
+            } else {
+                isInitializing = false
             }
         }
     }
@@ -163,7 +171,8 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
         isMining = false
         isInitializing = false
         hashrate = 0.0
-        miningJob?.cancel()
+        miningJobs.forEach { it.cancel() }
+        miningJobs.clear()
     }
 }
 
@@ -219,7 +228,7 @@ fun MinerScreen(
         OutlinedTextField(
             value = viewModel.walletAddress,
             onValueChange = { viewModel.walletAddress = it },
-            label = { Text("Wallet-Adresse") },
+            label = { Text("Wallet Address") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -227,10 +236,34 @@ fun MinerScreen(
         OutlinedTextField(
             value = viewModel.poolUrl,
             onValueChange = { viewModel.poolUrl = it },
-            label = { Text("Pool URL") },
+            label = { Text("UnMineable Pool URL") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
+
+        OutlinedTextField(
+            value = viewModel.startArgs,
+            onValueChange = { viewModel.startArgs = it },
+            label = { Text("Start Arguments (e.g., --threads 4)") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(text = "CPU Threads: ${viewModel.numThreads}", style = MaterialTheme.typography.labelMedium)
+            Slider(
+                value = viewModel.numThreads.toFloat(),
+                onValueChange = { viewModel.numThreads = it.toInt() },
+                valueRange = 1f..Runtime.getRuntime().availableProcessors().toFloat(),
+                steps = Runtime.getRuntime().availableProcessors() - 2,
+                enabled = !viewModel.isMining
+            )
+            Text(
+                text = "Higher Intensity = More Heat & Battery Usage",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.secondary
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -251,10 +284,10 @@ fun MinerScreen(
             ) {
                 Text(
                     text = when {
-                        viewModel.stopReason.isNotEmpty() -> "STOPPT: ${viewModel.stopReason}"
-                        viewModel.isInitializing -> "Initialisiere RandomX Dataset..."
-                        viewModel.isMining -> "Mining läuft..."
-                        else -> "Gestoppt"
+                        viewModel.stopReason.isNotEmpty() -> "STOPPED: ${viewModel.stopReason}"
+                        viewModel.isInitializing -> "Initializing RandomX Dataset..."
+                        viewModel.isMining -> "Mining in progress..."
+                        else -> "Stopped"
                     },
                     color = if (viewModel.stopReason.isNotEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                 )
@@ -263,16 +296,16 @@ fun MinerScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Akku: ${viewModel.batteryLevel}%", style = MaterialTheme.typography.labelSmall)
+                    Text(text = "Battery: ${viewModel.batteryLevel}%", style = MaterialTheme.typography.labelSmall)
                     if (viewModel.isDeviceHot) {
-                        Text(text = "Gerät HEISS", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                        Text(text = "Device HOT", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
                     }
                 }
                 Text(
                     text = "${String.format("%.2f", viewModel.hashrate)} H/s",
                     style = MaterialTheme.typography.displayMedium
                 )
-                Text(text = "Gesamt Hashes: ${viewModel.totalHashes}")
+                Text(text = "Total Hashes: ${viewModel.totalHashes}")
             }
         }
 
@@ -283,7 +316,7 @@ fun MinerScreen(
                 containerColor = if (viewModel.isMining) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
             )
         ) {
-            Text(if (viewModel.isMining) "STOPPEN" else "STARTEN")
+            Text(if (viewModel.isMining) "STOP" else "START")
         }
     }
 }

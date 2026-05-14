@@ -6,20 +6,34 @@
 #include "randomx_wrapper.h"
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_freetime_allminer_MainActivity_00024MinerViewModel_initRandomX(
+Java_com_freetime_allminer_MinerViewModel_initRandomX(
         JNIEnv* env,
         jobject /* this */,
-        jstring key) {
+        jstring key,
+        jstring args) {
     const char* nativeKey = env->GetStringUTFChars(key, nullptr);
-    bool success = RandomXEngine::getInstance().init(nativeKey);
+    const char* nativeArgs = env->GetStringUTFChars(args, nullptr);
+
+    bool success = RandomXEngine::getInstance().init(nativeKey, nativeArgs);
+
     env->ReleaseStringUTFChars(key, nativeKey);
+    env->ReleaseStringUTFChars(args, nativeArgs);
     return static_cast<jboolean>(success);
 }
 
-extern "C" JNIEXPORT jlong JNICALL
-Java_com_freetime_allminer_MainActivity_00024MinerViewModel_performRandomXHash(
+extern "C" JNIEXPORT void JNICALL
+Java_com_freetime_allminer_MinerViewModel_prepareThreads(
         JNIEnv* env,
         jobject /* this */,
+        jint count) {
+    RandomXEngine::getInstance().prepareThreads(count);
+}
+
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_freetime_allminer_MinerViewModel_performRandomXHash(
+        JNIEnv* env,
+        jobject /* this */,
+        jint threadId,
         jbyteArray inputData) {
 
     if (!RandomXEngine::getInstance().isReady()) return 0;
@@ -28,17 +42,16 @@ Java_com_freetime_allminer_MainActivity_00024MinerViewModel_performRandomXHash(
     jbyte* body = env->GetByteArrayElements(inputData, nullptr);
 
     uint8_t output[32];
-    RandomXEngine::getInstance().hash(reinterpret_cast<uint8_t*>(body), len, output);
+    RandomXEngine::getInstance().hash(threadId, reinterpret_cast<uint8_t*>(body), len, output);
 
     env->ReleaseByteArrayElements(inputData, body, JNI_ABORT);
 
-    // Wir geben "1" zurück, um einen erfolgreichen Hash anzuzeigen
     return 1;
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_freetime_allminer_MainActivity_00024MinerViewModel_getEngineVersion(
+Java_com_freetime_allminer_MinerViewModel_getEngineVersion(
         JNIEnv* env,
         jobject /* this */) {
-    return env->NewStringUTF("RandomX v1.1.10 (Native Wrapper)");
+    return env->NewStringUTF("RandomX v1.1.10 (Multi-Threaded)");
 }
