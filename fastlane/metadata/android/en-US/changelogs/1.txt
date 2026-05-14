@@ -1,6 +1,0 @@
-Initial release of AllMiner!
-- Native RandomX engine integration.
-- unMineable pool support.
-- Multi-thread support with adjustable intensity.
-- Intelligent battery and heat protection.
-- Modern Material 3 design.

@@ -7,23 +7,33 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Bundle
 import android.os.PowerManager
-import androidx.lifecycle.AndroidViewModel
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
-import kotlin.random.Random
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import com.freetime.allminer.ui.theme.AllMinerTheme
+
+// DataStore for persistent settings
+private val Context.dataStore by preferencesDataStore(name = "settings")
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +54,7 @@ class MainActivity : ComponentActivity() {
 class MinerViewModel(application: Application) : AndroidViewModel(application) {
     init {
         System.loadLibrary("allminer")
+        loadSettings()
     }
 
     private external fun initRandomX(key: String, args: String): Boolean
@@ -51,6 +62,13 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
     private external fun performRandomXHash(threadId: Int, input: ByteArray): Long
     private external fun getEngineVersion(): String
 
+    // Keys for DataStore
+    private val WALLET_KEY = stringPreferencesKey("wallet_address")
+    private val POOL_KEY = stringPreferencesKey("pool_url")
+    private val ARGS_KEY = stringPreferencesKey("start_args")
+    private val COIN_KEY = stringPreferencesKey("selected_coin")
+
+    // UI States
     var isMining by mutableStateOf(false)
     var isInitializing by mutableStateOf(false)
     var hashrate by mutableDoubleStateOf(0.0)
@@ -62,7 +80,6 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
     var engineInfo by mutableStateOf(getEngineVersion())
     var numThreads by mutableIntStateOf(1)
     
-    // Akku- und Hitzeschutz Status
     var batteryLevel by mutableIntStateOf(100)
     var isBatteryLow by mutableStateOf(false)
     var isDeviceHot by mutableStateOf(false)
@@ -71,8 +88,42 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
     private var miningJobs = mutableListOf<Job>()
     private var monitoringJob: Job? = null
 
+    // Expanded Crypto List
+    val coins = listOf(
+        "DOGE", "SHIB", "PEPE", "SOL", "ADA", "XRP", "LTC", "BONK", "FLOKI",
+        "MATIC", "DOT", "TRX", "LINK", "AVAX", "ETC", "RVN", "XMR", "KAS", "ALGO",
+        "BABYDOGE", "SAFEMOON", "VET", "ZIL", "EOS", "DASH", "ATOM", "FTM", "NEAR"
+    ).sorted()
+
     init {
         startMonitoring()
+    }
+
+    private fun loadSettings() {
+        viewModelScope.launch {
+            val context = getApplication<Application>()
+            try {
+                val preferences = context.dataStore.data.first()
+                walletAddress = preferences[WALLET_KEY] ?: ""
+                poolUrl = preferences[POOL_KEY] ?: "rx.unmineable.com:3333"
+                startArgs = preferences[ARGS_KEY] ?: "--cpu-max-threads-hint 50"
+                selectedCoin = preferences[COIN_KEY] ?: "DOGE"
+            } catch (e: Exception) {
+                // Handle possible errors
+            }
+        }
+    }
+
+    private fun saveSettings() {
+        viewModelScope.launch {
+            val context = getApplication<Application>()
+            context.dataStore.edit { preferences ->
+                preferences[WALLET_KEY] = walletAddress
+                preferences[POOL_KEY] = poolUrl
+                preferences[ARGS_KEY] = startArgs
+                preferences[COIN_KEY] = selectedCoin
+            }
+        }
     }
 
     private fun startMonitoring() {
@@ -87,7 +138,7 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
                         stopMining()
                     }
                 }
-                delay(5000) // Alle 5 Sekunden prüfen
+                delay(5000)
             }
         }
     }
@@ -98,26 +149,22 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
         val level: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
         val scale: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
         batteryLevel = if (scale > 0) (level * 100 / scale.toFloat()).toInt() else 0
-        
-        // Schutz ab 20% Akku
         isBatteryLow = batteryLevel < 20
     }
 
     private fun updateThermalStatus() {
         val powerManager = getApplication<Application>().getSystemService(Context.POWER_SERVICE) as PowerManager
-        // Thermal Status ab Android 10 (API 29)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             val status = powerManager.currentThermalStatus
             isDeviceHot = status >= PowerManager.THERMAL_STATUS_MODERATE
         }
     }
 
-    val coins = listOf("DOGE", "SHIB", "PEPE", "SOL", "ADA", "XRP", "LTC", "BONK", "FLOKI")
-
     fun toggleMining() {
         if (isMining) {
             stopMining()
         } else {
+            saveSettings()
             stopReason = ""
             startMining()
         }
@@ -152,7 +199,6 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
                             if (timeTakenSec > 0) {
                                 val currentThreadHashrate = batchHashes / timeTakenSec
                                 withContext(Dispatchers.Main) {
-                                    // Sehr simple Hashrate-Aggregierung (nur Schätzung)
                                     hashrate = (hashrate * 0.9 + currentThreadHashrate * 0.1)
                                 }
                             }
@@ -184,7 +230,8 @@ fun MinerScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -201,6 +248,7 @@ fun MinerScreen(
 
         var expanded by remember { mutableStateOf(false) }
 
+        // Selection Area
         Box(modifier = Modifier.fillMaxWidth()) {
             OutlinedButton(
                 onClick = { expanded = true },
@@ -236,7 +284,7 @@ fun MinerScreen(
         OutlinedTextField(
             value = viewModel.poolUrl,
             onValueChange = { viewModel.poolUrl = it },
-            label = { Text("UnMineable Pool URL") },
+            label = { Text("Pool URL") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -244,7 +292,7 @@ fun MinerScreen(
         OutlinedTextField(
             value = viewModel.startArgs,
             onValueChange = { viewModel.startArgs = it },
-            label = { Text("Start Arguments (e.g., --threads 4)") },
+            label = { Text("Start Arguments") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -255,7 +303,7 @@ fun MinerScreen(
                 value = viewModel.numThreads.toFloat(),
                 onValueChange = { viewModel.numThreads = it.toInt() },
                 valueRange = 1f..Runtime.getRuntime().availableProcessors().toFloat(),
-                steps = Runtime.getRuntime().availableProcessors() - 2,
+                steps = if (Runtime.getRuntime().availableProcessors() > 1) Runtime.getRuntime().availableProcessors() - 1 else 0,
                 enabled = !viewModel.isMining
             )
             Text(
@@ -265,10 +313,10 @@ fun MinerScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
+        // Stats Card - "See everything"
         Card(
             modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             colors = CardDefaults.cardColors(
                 containerColor = when {
                     viewModel.stopReason.isNotEmpty() -> MaterialTheme.colorScheme.errorContainer
@@ -280,44 +328,99 @@ fun MinerScreen(
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
                     text = when {
                         viewModel.stopReason.isNotEmpty() -> "STOPPED: ${viewModel.stopReason}"
-                        viewModel.isInitializing -> "Initializing RandomX Dataset..."
-                        viewModel.isMining -> "Mining in progress..."
-                        else -> "Stopped"
+                        viewModel.isInitializing -> "Initializing RandomX..."
+                        viewModel.isMining -> "Mining Active"
+                        else -> "System Ready"
                     },
-                    color = if (viewModel.stopReason.isNotEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                    style = MaterialTheme.typography.titleLarge
                 )
                 
+                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Battery: ${viewModel.batteryLevel}%", style = MaterialTheme.typography.labelSmall)
-                    if (viewModel.isDeviceHot) {
-                        Text(text = "Device HOT", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                    Column {
+                        Text(text = "Battery", style = MaterialTheme.typography.labelSmall)
+                        Text(text = "${viewModel.batteryLevel}%", style = MaterialTheme.typography.bodyLarge)
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(text = "Status", style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            text = if (viewModel.isDeviceHot) "OVERHEATING" else "COOL",
+                            color = if (viewModel.isDeviceHot) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
                 }
-                Text(
-                    text = "${String.format("%.2f", viewModel.hashrate)} H/s",
-                    style = MaterialTheme.typography.displayMedium
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Current Hashrate", style = MaterialTheme.typography.labelSmall)
+                    Text(
+                        text = "${String.format("%.2f", viewModel.hashrate)} H/s",
+                        style = MaterialTheme.typography.displayMedium
+                    )
+                }
+
+                LinearProgressIndicator(
+                    progress = { if (viewModel.isMining) 1f else 0f },
+                    modifier = Modifier.fillMaxWidth().height(8.dp)
                 )
-                Text(text = "Total Hashes: ${viewModel.totalHashes}")
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Total Hashes:", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = "${viewModel.totalHashes}", style = MaterialTheme.typography.bodyMedium)
+                }
+                
+                if (viewModel.isMining) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(text = "Mining Config:", style = MaterialTheme.typography.labelSmall)
+                            Text(
+                                text = "Address: ${viewModel.selectedCoin}:${viewModel.walletAddress}",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
             }
         }
 
         Button(
             onClick = { viewModel.toggleMining() },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(64.dp),
+            shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (viewModel.isMining) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
             )
         ) {
-            Text(if (viewModel.isMining) "STOP" else "START")
+            Text(
+                if (viewModel.isMining) "STOP MINING" else "START MINING",
+                style = MaterialTheme.typography.headlineSmall
+            )
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "FOSS Version - GPLv3 License",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.outline
+        )
     }
 }
 
