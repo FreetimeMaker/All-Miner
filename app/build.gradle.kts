@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId = "com.freetime.allminer"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 4
         versionName = "1.2.1"
 
@@ -45,7 +45,7 @@ android {
             version = "3.22.1"
         }
     }
-    ndkVersion = "30.0.14904198 rc1"
+    ndkVersion = "30.0.14904198"
 }
 
 dependencies {

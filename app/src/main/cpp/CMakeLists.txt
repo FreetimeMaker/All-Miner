@@ -2,10 +2,8 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project("allminer")
 
-# Importiere die vor-kompilierte librandomx.a
-add_library(randomx STATIC IMPORTED)
-set_target_properties(randomx PROPERTIES IMPORTED_LOCATION
-    ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/librandomx.a)
+# RandomX Quellcode als Subdirectory hinzufügen
+add_subdirectory(RandomX)
 
 add_library(
     allminer
@@ -17,6 +15,12 @@ add_library(
 find_library(
     log-lib
     log
+)
+
+target_include_directories(
+    allminer
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/RandomX/src
 )
 
 target_link_libraries(
