@@ -11,3 +11,4 @@ Initial release of All Miner!
 - Stability fixes and optimized multi-threading logic.
 - Added Foreground Service for mining
 - Fixed a Few Errors
+- Fixed F-Droid Builds
