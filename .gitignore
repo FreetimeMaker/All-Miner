@@ -34,4 +34,3 @@ local.properties
 */.next
 .AddCompLib
 .fake
-/app/src/main/cpp/RandomX/

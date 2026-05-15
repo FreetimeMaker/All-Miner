@@ -1,0 +1,3 @@
+[submodule "app/src/main/cpp/RandomX"]
+	path = app/src/main/cpp/RandomX
+	url = https://github.com/tevador/RandomX.git

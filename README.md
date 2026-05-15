@@ -4,7 +4,7 @@
 </div>
 
 <div align="center">
-<h1>📸 Pictures of GeoWeather in Action</h1>
+<h1>📸 Pictures of AllMiner in Action</h1>
 
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" alt="1. Picture"  width="25%">
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" alt="2. Picture"  width="25%">
@@ -70,15 +70,9 @@ You can download the latest version of All Miner from the following platforms:
 [<img src="media-resources/badge_github_store.png" alt="Get it on GitHub Store" height="70">](https://github-store.org/app?repo=FreetimeMaker/All-Miner)
 </div>
 
-## 🚀 Upcoming Features
-
-Planned:
-
-- 📸 **App Demonstration**: Screenshots and video tutorials on YouTube and other platforms
-
 ## 📄 License
 
-This project is licensed under the [Apache-2.0 License](LICENSE).
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
 
 ## ❤️ Support This Project
 
@@ -134,5 +128,5 @@ Alternatively, you can also display the addresses directly:
 - Litecoin (LTC): `LU2ERRXKTeKnzpuieQcpsBteViEY7ff5Wg` — or open in block explorer by clicking the badge above
 
 <div align="center">
-<p><i>Developed with ❤️ by FreetimeMaker</i></p>
+<p><i>Developed with ❤️ for the FOSS Community</i></p>
 </div>
