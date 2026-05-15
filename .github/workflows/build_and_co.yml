@@ -58,6 +58,10 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
+      - name: Clone RandomX source
+        run: |
+          git clone https://github.com/tevador/RandomX.git app/src/main/cpp/RandomX
+
       - name: Accept Android SDK Licenses
         run: |
           yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true

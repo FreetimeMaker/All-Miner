@@ -17,12 +17,12 @@
 
 <div align="center">
 
-[![Latest release](https://img.shields.io/github/v/release/FreetimeMaker/All-Miner?style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/releases)
-[![F-Droid latest release](https://img.shields.io/f-droid/v/com.freetime.allminer?color=%23ea9010&style=for-the-badge)](https://f-droid.org/packages/com.freetime.geoweather)
-[![GitHub license](https://img.shields.io/github/license/FreetimeMaker/All-Miner?style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/blob/main/LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/FreetimeMaker/All-Miner/total?style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/releases)
-[![GitHub stars](https://img.shields.io/github/stars/FreetimeMaker/All-Miner?color=%2359a14f&style=for-the-badge)](https://github.com/FreetimeMaker/GeoWeather/stargazers)
-[![Android Build, Sign and Release](https://github.com/FreetimeMaker/All-Miner/actions/workflows/build_and_co.yml/badge.svg)](https://github.com/FreetimeMaker/GeoWeather/actions/workflows/build_and_co.yml)
+[![Latest release](https://img.shields.io/github/v/release/FreetimeMaker/All-Miner?style=for-the-badge)](https://github.com/FreetimeMaker/All-Miner/releases)
+[![F-Droid latest release](https://img.shields.io/f-droid/v/com.freetime.allminer?color=%23ea9010&style=for-the-badge)](https://f-droid.org/packages/com.freetime.allminer)
+[![GitHub license](https://img.shields.io/github/license/FreetimeMaker/All-Miner?style=for-the-badge)](https://github.com/FreetimeMaker/All-Miner/blob/main/LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/FreetimeMaker/All-Miner/total?style=for-the-badge)](https://github.com/FreetimeMaker/All-Miner/releases)
+[![GitHub stars](https://img.shields.io/github/stars/FreetimeMaker/All-Miner?color=%2359a14f&style=for-the-badge)](https://github.com/FreetimeMaker/All-Miner/stargazers)
+[![Android Build, Sign and Release](https://github.com/FreetimeMaker/All-Miner/actions/workflows/build_and_co.yml/badge.svg)](https://github.com/FreetimeMaker/All-Miner/actions/workflows/build_and_co.yml)
 [![API](https://img.shields.io/badge/API-24%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=24)
 <img alt="Kotlin" src="https://ziadoua.github.io/m3-Markdown-Badges/badges/Kotlin/kotlin1.svg" />
 <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/Android/android1.svg" />
@@ -58,7 +58,7 @@ AllMiner is a powerful crypto miner optimized specifically for Android devices. 
 You can download the latest version of All Miner from the following platforms:
 
 - **GitHub Releases**: [Direct Download](https://github.com/FreetimeMaker/All-Miner/releases/latest)
-- **F-Droid**: [com.freetime.geoweather](https://f-droid.org/packages/com.freetime.allminer)
+- **F-Droid**: [com.freetime.allminer](https://f-droid.org/packages/com.freetime.allminer)
 - **GitHub Store**: [Open in GitHub Store](https://github-store.org/app?repo=FreetimeMaker/All-Miner)
 
 <div align="center">
