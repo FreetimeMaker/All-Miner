@@ -11,8 +11,8 @@ android {
         applicationId = "com.freetime.allminer"
         minSdk = 24
         targetSdk = 37
-        versionCode = 8
-        versionName = "1.3.3"
+        versionCode = 9
+        versionName = "1.3.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -22,12 +22,24 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("../All-Miner-KeyStore.jks")
+            storePassword = "KKKKKK"
+            keyAlias = "alle"
+            keyPassword = "KKKKKK"
+        }
+    }
+
     buildTypes {
         release {
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

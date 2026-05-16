@@ -67,44 +67,21 @@ jobs:
       - name: Build Android App
         run: ./gradlew :app:assembleRelease
 
-      - name: Find APKSIGNER
-        id: find_apksigner
+      - name: Prepare APK for Release
+        id: prepare_apk
         run: |
-          APKSIGNER=$(find /usr/local/lib/android/sdk/build-tools -name apksigner | head -n 1)
-          echo "apksigner=$APKSIGNER" >> $GITHUB_OUTPUT
-
-      - name: Sign Android
-        id: sign_apk
-        run: |
-          if [ -f "app/build/outputs/apk/release/app-release-unsigned.apk" ]; then
-            UNSIGNED_APK="app/build/outputs/apk/release/app-release-unsigned.apk"
-          else
-            UNSIGNED_APK="app/build/outputs/apk/release/app-release.apk"
-          fi
-          SIGNED_APK="All-Miner-v${{ needs.prepare_android_app.outputs.version }}.apk"
-
-          echo "==> Signiere APK: $SIGNED_APK"
-          "${{ steps.find_apksigner.outputs.apksigner }}" sign \
-            --ks ./All-Miner-KeyStore.jks \
-            --ks-key-alias alle \
-            --ks-pass pass:KKKKKK \
-            --key-pass pass:KKKKKK \
-            --out "$SIGNED_APK" \
-            "$UNSIGNED_APK"
-
-          echo "signed_apk=$SIGNED_APK" >> $GITHUB_OUTPUT
-
-      - name: Verify APK Signature
-        run: |
-          echo "==> Überprüfe Signatur"
-          "${{ steps.find_apksigner.outputs.apksigner }}" verify --verbose \
-            "${{ steps.sign_apk.outputs.signed_apk }}"
+          # Use the APK signed by Gradle
+          SOURCE_APK="app/build/outputs/apk/release/app-release.apk"
+          FINAL_APK="All-Miner-v${{ needs.prepare_android_app.outputs.version }}.apk"
+          
+          cp "$SOURCE_APK" "$FINAL_APK"
+          echo "final_apk=$FINAL_APK" >> $GITHUB_OUTPUT
 
       - name: Upload APK as build artifact
         uses: actions/upload-artifact@v7
         with:
-          name: All-Miner-v${{ needs.prepare_android_app.outputs.version }}.apk
-          path: All-Miner-v${{ needs.prepare_android_app.outputs.version }}.apk
+          name: ${{ steps.prepare_apk.outputs.final_apk }}
+          path: ${{ steps.prepare_apk.outputs.final_apk }}
           if-no-files-found: error
           retention-days: 90
 
@@ -114,6 +91,6 @@ jobs:
         with:
           tag_name: v${{ needs.prepare_android_app.outputs.version }}
           files: |
-            All-Miner-v${{ needs.prepare_android_app.outputs.version }}.apk
+            ${{ steps.prepare_apk.outputs.final_apk }}
           draft: true
           generate_release_notes: true
