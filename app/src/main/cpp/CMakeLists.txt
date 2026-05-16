@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project("allminer")
 
+# Improve build reproducibility for F-Droid
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=. -fno-unwind-tables -fno-asynchronous-unwind-tables")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=. -fno-unwind-tables -fno-asynchronous-unwind-tables")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--build-id=none")
+
 # Check if RandomX directory is empty or missing
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/RandomX/CMakeLists.txt")
     message(FATAL_ERROR "RandomX source directory is missing or empty!

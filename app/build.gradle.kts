@@ -11,8 +11,8 @@ android {
         applicationId = "com.freetime.allminer"
         minSdk = 24
         targetSdk = 37
-        versionCode = 7
-        versionName = "1.3.2"
+        versionCode = 8
+        versionName = "1.3.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -24,7 +24,6 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -46,6 +45,7 @@ android {
         }
     }
 
+    // Fixed NDK version to match F-Droid build environment for reproducibility
     ndkVersion = "30.0.14904198"
 }
 
