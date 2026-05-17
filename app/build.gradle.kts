@@ -10,9 +10,9 @@ android {
     defaultConfig {
         applicationId = "com.freetime.allminer"
         minSdk = 24
-        targetSdk = 37
-        versionCode = 9
-        versionName = "1.3.4"
+        targetSdk = 35
+        versionCode = 10
+        versionName = "1.3.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -48,6 +48,11 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     externalNativeBuild {
