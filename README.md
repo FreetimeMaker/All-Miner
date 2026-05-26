@@ -4,7 +4,7 @@
 </div>
 
 <div align="center">
-<h1>📸 Pictures of AllMiner in Action</h1>
+<h1>📸 Pictures of All Miner in Action</h1>
 
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" alt="1. Picture"  width="25%">
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" alt="2. Picture"  width="25%">
@@ -19,7 +19,7 @@
 
 [![Latest release](https://img.shields.io/github/v/release/FreetimeMaker/All-Miner?style=for-the-badge)](https://github.com/FreetimeMaker/All-Miner/releases)
 [![F-Droid latest release](https://img.shields.io/f-droid/v/com.freetime.allminer?color=%23ea9010&style=for-the-badge)](https://f-droid.org/packages/com.freetime.allminer)
-[![GitHub license](https://img.shields.io/github/license/FreetimeMaker/All-Miner?style=for-the-badge)](https://github.com/FreetimeMaker/All-Miner/blob/main/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/FreetimeMaker/All-Miner?style=for-the-badge)](https://github.com/FreetimeMaker/All-Miner/blob/main/LICENCE)
 [![Downloads](https://img.shields.io/github/downloads/FreetimeMaker/All-Miner/total?style=for-the-badge)](https://github.com/FreetimeMaker/All-Miner/releases)
 [![GitHub stars](https://img.shields.io/github/stars/FreetimeMaker/All-Miner?color=%2359a14f&style=for-the-badge)](https://github.com/FreetimeMaker/All-Miner/stargazers)
 [![Android Build, Sign and Release](https://github.com/FreetimeMaker/All-Miner/actions/workflows/build_and_co.yml/badge.svg)](https://github.com/FreetimeMaker/All-Miner/actions/workflows/build_and_co.yml)
@@ -58,8 +58,8 @@ AllMiner is a powerful crypto miner optimized specifically for Android devices. 
 You can download the latest version of All Miner from the following platforms:
 
 - **GitHub Releases**: [Direct Download](https://github.com/FreetimeMaker/All-Miner/releases/latest)
-- **F-Droid**: [com.freetime.allminer](https://f-droid.org/packages/com.freetime.allminer)
-- **GitHub Store**: [Open in GitHub Store](https://github-store.org/app?repo=FreetimeMaker/All-Miner)
+- **F-Droid**: [com.freetime.allminer](https://f-droid.org/packages/com.freetime.allminer) (Pending)
+- **Obtainium**: [Open in Obtainium](https://github.com/ImranR98/Obtainium)
 
 <div align="center">
 
@@ -67,12 +67,12 @@ You can download the latest version of All Miner from the following platforms:
 
 [<img src="media-resources/badge_f_droid.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.freetime.allminer)
 
-[<img src="media-resources/badge_github_store.png" alt="Get it on GitHub Store" height="70">](https://github-store.org/app?repo=FreetimeMaker/All-Miner)
+[<img src="media-resources/badge_obtainium.png" alt="Get it on Obtainium" height="70">](https://github.com/ImranR98/Obtainium)
 </div>
 
 ## 📄 License
 
-This project is licensed under the [GNU General Public License v3.0](LICENSE).
+This project is licensed under the [GNU General Public License v3.0](LICENCE).
 
 ## ❤️ Support This Project
 

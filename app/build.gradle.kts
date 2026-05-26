@@ -10,9 +10,9 @@ android {
     defaultConfig {
         applicationId = "com.freetime.allminer"
         minSdk = 24
-        targetSdk = 35
-        versionCode = 10
-        versionName = "1.3.5"
+        targetSdk = 37
+        versionCode = 11
+        versionName = "1.3.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

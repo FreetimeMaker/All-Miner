@@ -1,15 +1,20 @@
 package com.freetime.allminer
 
+import android.Manifest
 import android.app.Application
 import android.content.*
+import android.content.pm.PackageManager
 import android.os.BatteryManager
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -34,8 +39,19 @@ import com.freetime.allminer.ui.theme.AllMinerTheme
 private val Context.dataStore by preferencesDataStore(name = "settings")
 
 class MainActivity : ComponentActivity() {
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { _ -> }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
         enableEdgeToEdge()
         setContent {
             AllMinerTheme {
@@ -210,6 +226,14 @@ class MinerViewModel(application: Application) : AndroidViewModel(application) {
                 withContext(Dispatchers.Main) {
                     isInitializing = false
                     isMining = true
+                    
+                    val intent = Intent(getApplication(), MiningService::class.java)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        getApplication<Application>().startForegroundService(intent)
+                    } else {
+                        getApplication<Application>().startService(intent)
+                    }
+
                     miningService?.startMining(selectedCoin, walletAddress, numThreads, startArgs)
                 }
             } else {

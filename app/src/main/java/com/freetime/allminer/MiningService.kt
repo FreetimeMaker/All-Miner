@@ -3,6 +3,7 @@ package com.freetime.allminer
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -68,7 +69,11 @@ class MiningService : Service() {
         currentCoin = coin
         isMining = true
         
-        startForeground(1, getNotification("Mining $coin..."))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(1, getNotification("Mining $coin..."), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } else {
+            startForeground(1, getNotification("Mining $coin..."))
+        }
 
         serviceScope.launch {
             // Native initialization (RandomX logic remains same)
